@@ -10,6 +10,7 @@ import { Sha256Encryptor } from './core/infra/encryptors/sha-256/sha256-encrypto
 import { JwtGenerator } from './core/infra/jwt/jwt-generator'
 import { Role } from './auth/app/models/credentials'
 import { ExceptionDecorator } from './core/app/decorators/exception.decorator'
+import { productRouter } from './product/infra/routes/product.router'
 
 console.log('Connecting to database...')
 
@@ -51,6 +52,8 @@ mongoose
     app.use('/auth', authRouter)
 
     app.use('/user', userRouter)
+
+    app.use('/product', productRouter)
 
     app.get('/', (_req, res) => {
       res.send('Welcome to E-Commerce-Tek!')
