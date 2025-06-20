@@ -10,12 +10,11 @@ import { UuidGenerator } from '../../../core/infra/uuid/uuid-generator'
 import { MongoCredentialsRepository } from '../repository/mongo/credentials.repository'
 import { expressExceptionHandler } from '../../../core/infra/exception-handlers/express.exception-handler'
 import { JwtGenerator } from '../../../core/infra/jwt/jwt-generator'
-import { verifyToken } from '../../../core/infra/middlewares/verify-token.middleware'
-import { getUserFromReq } from '../../../core/infra/utils/get-user-from-req'
 import { verifyUserRole } from '../../../core/infra/middlewares/verify-user-role.middleware'
 import { Sha256Encryptor } from '../../../core/infra/encryptors/sha-256/sha256-encryptor'
 import { LoginService } from '../../app/services/login/login.service'
 import { Role } from '../../app/models/credentials'
+import { verifyToken } from '../../../core/infra/middlewares/verify-token.middleware'
 
 export const authRouter = Router()
 
@@ -24,6 +23,8 @@ const credentialsRepo = new MongoCredentialsRepository()
 authRouter.post(
   '/register',
   validateBody(RegisterDTO),
+  verifyToken(credentialsRepo),
+  verifyUserRole(Role.ADMIN),
   async (req, res, _next) => {
     const result = await new ExceptionDecorator(
       new LoggerDecorator(
@@ -61,13 +62,3 @@ authRouter.post('/login', validateBody(LoginDTO), async (req, res) => {
 
   res.send(result.unwrap())
 })
-
-authRouter.get(
-  '/protected',
-  verifyToken(credentialsRepo),
-  verifyUserRole(Role.ADMIN),
-  (req, res) => {
-    const user = getUserFromReq(req)
-    res.send(user)
-  }
-)
