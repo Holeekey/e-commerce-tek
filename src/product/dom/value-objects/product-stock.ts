@@ -1,12 +1,7 @@
 import { ValueObject } from '../../../core/dom/value-object/value-object'
-import { getDecimalsQuantity } from '../../../core/utils/functions/get-decimals-quantity'
-import { roundToNDecimals } from '../../../core/utils/functions/round-to-n-decimals'
 import { InvalidProductPriceException } from '../exceptions/invalid-product-price'
 import { InvalidStockOperationException } from '../exceptions/invalid-stock-operation'
 import { StockQuantity } from './stock-quantity'
-
-const MAX_DECIMALS = 4
-const MAX_QUANTITY = 999_999_999_999.99
 
 export class ProductStock implements ValueObject<ProductStock> {
   constructor(

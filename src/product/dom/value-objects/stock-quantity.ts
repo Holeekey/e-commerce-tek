@@ -1,7 +1,6 @@
 import { ValueObject } from '../../../core/dom/value-object/value-object'
 import { getDecimalsQuantity } from '../../../core/utils/functions/get-decimals-quantity'
 import { roundToNDecimals } from '../../../core/utils/functions/round-to-n-decimals'
-import { InvalidProductPriceException } from '../exceptions/invalid-product-price'
 import { InvalidStockQuantityException } from '../exceptions/invalid-stock-quantity'
 
 const MAX_DECIMALS = 4

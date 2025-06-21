@@ -1,0 +1,82 @@
+import { ProductModel } from '../../../../core/infra/models/product.model'
+import { ProductPriceModel } from '../../../../core/infra/models/product.price.model'
+import { Optional } from '../../../../core/utils/optional'
+import { ProductRepository } from '../../../app/repositories/product.repository'
+import { makeProduct, Product } from '../../../dom/product'
+import { ProductId } from '../../../dom/value-objects/product-id'
+import { ProductName } from '../../../dom/value-objects/product-name'
+
+export class MongoProductRepository implements ProductRepository {
+  async findOne(id: ProductId): Promise<Optional<Product>> {
+    const odmProduct = await ProductModel.findOne({ id: id.value }).lean()
+    if (!odmProduct) return Optional.empty()
+
+    const odmProductPrice = await ProductPriceModel.findOne({
+      productId: odmProduct.id,
+      finishedAt: null,
+    }).lean()
+
+    if (!odmProductPrice) {
+      throw new Error(
+        `Product price not found for product with id ${odmProduct.id}`
+      )
+    }
+
+    return Optional.of(
+      makeProduct({
+        id: odmProduct.id,
+        name: odmProduct.name,
+        stock: odmProduct.stock,
+        description: odmProduct.description ?? undefined,
+        canStockBeDecimal: odmProduct.canStockBeDecimal,
+        price: odmProductPrice.price,
+      })
+    )
+  }
+  async findByName(name: ProductName): Promise<Optional<Product>> {
+    const odmProduct = await ProductModel.findOne({ name: name.value }).lean()
+    if (!odmProduct) return Optional.empty()
+
+    const odmProductPrice = await ProductPriceModel.findOne({
+      productId: odmProduct.id,
+      finishedAt: null,
+    }).lean()
+
+    if (!odmProductPrice) {
+      throw new Error(
+        `Product price not found for product with id ${odmProduct.id}`
+      )
+    }
+
+    return Optional.of(
+      makeProduct({
+        id: odmProduct.id,
+        name: odmProduct.name,
+        stock: odmProduct.stock,
+        description: odmProduct.description ?? undefined,
+        canStockBeDecimal: odmProduct.canStockBeDecimal,
+        price: odmProductPrice.price,
+      })
+    )
+  }
+  async save(product: Product): Promise<void> {
+    await ProductModel.create({
+      id: product.id.value,
+      name: product.name.value,
+      stock: product.stock.quantity.value,
+      description: product.description ?? undefined,
+      canStockBeDecimal: product.stock.isDecimal,
+    })
+    await ProductPriceModel.updateOne(
+      { productId: product.id.value, finishedAt: null },
+      { finishedAt: new Date() },
+      { upsert: true }
+    )
+    await ProductPriceModel.create({
+      productId: product.id.value,
+      price: product.price.value,
+      startedAt: new Date(),
+      finishedAt: null,
+    })
+  }
+}
