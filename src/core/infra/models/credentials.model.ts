@@ -3,10 +3,6 @@ import { Role } from '../../../auth/app/models/credentials'
 
 const credentialsSchema = new Schema(
   {
-    userId: {
-      type: String,
-      required: true,
-    },
     email: {
       type: String,
       required: true,

@@ -12,19 +12,19 @@ export class MongoProductRepository implements ProductRepository {
     if (!odmProduct) return Optional.empty()
 
     const odmProductPrice = await ProductPriceModel.findOne({
-      productId: odmProduct.id,
+      productId: odmProduct._id.toString(),
       finishedAt: null,
     }).lean()
 
     if (!odmProductPrice) {
       throw new Error(
-        `Product price not found for product with id ${odmProduct.id}`
+        `Product price not found for product with id ${odmProduct._id.toString()}`
       )
     }
 
     return Optional.of(
       makeProduct({
-        id: odmProduct.id,
+        id: odmProduct._id.toString(),
         name: odmProduct.name,
         stock: odmProduct.stock,
         description: odmProduct.description ?? undefined,
@@ -38,19 +38,19 @@ export class MongoProductRepository implements ProductRepository {
     if (!odmProduct) return Optional.empty()
 
     const odmProductPrice = await ProductPriceModel.findOne({
-      productId: odmProduct.id,
+      productId: odmProduct._id.toString(),
       finishedAt: null,
     }).lean()
 
     if (!odmProductPrice) {
       throw new Error(
-        `Product price not found for product with id ${odmProduct.id}`
+        `Product price not found for product with id ${odmProduct._id.toString()}`
       )
     }
 
     return Optional.of(
       makeProduct({
-        id: odmProduct.id,
+        id: odmProduct._id.toString(),
         name: odmProduct.name,
         stock: odmProduct.stock,
         description: odmProduct.description ?? undefined,
@@ -61,7 +61,7 @@ export class MongoProductRepository implements ProductRepository {
   }
   async save(product: Product): Promise<void> {
     await ProductModel.create({
-      id: product.id.value,
+      _id: product.id.value,
       name: product.name.value,
       stock: product.stock.quantity.value,
       description: product.description ? product.description.value : undefined,

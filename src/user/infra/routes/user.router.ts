@@ -4,7 +4,6 @@ import { SignUpDTO } from '../dto/sign-up.dto'
 import { ExceptionDecorator } from '../../../core/app/decorators/exception.decorator'
 import { LoggerDecorator } from '../../../core/app/decorators/log.decorator'
 import { RegisterService } from '../../../auth/app/services/register/register.service'
-import { UuidGenerator } from '../../../core/infra/uuid/uuid-generator'
 import { JwtGenerator } from '../../../core/infra/jwt/jwt-generator'
 import { Sha256Encryptor } from '../../../core/infra/encryptors/sha-256/sha256-encryptor'
 import { MongoCredentialsRepository } from '../../../auth/infra/repository/mongo/credentials.repository'
@@ -15,6 +14,7 @@ import { MongoUserRepository } from '../repositories/mongo/user.repository'
 import { verifyToken } from '../../../core/infra/middlewares/verify-token.middleware'
 import { getUserFromReq } from '../../../core/infra/utils/get-user-from-req'
 import { FindOneUserService } from '../../app/services/find-one/find-one-user.service'
+import { ObjectIdGenerator } from '../../../core/infra/object-id/object-id-generator'
 
 export const userRouter = Router()
 
@@ -25,7 +25,7 @@ userRouter.post('/sign-up', validateBody(SignUpDTO), async (req, res) => {
   const registerResult = await new ExceptionDecorator(
     new LoggerDecorator(
       new RegisterService(
-        new UuidGenerator(),
+        new ObjectIdGenerator(),
         new JwtGenerator(),
         new Sha256Encryptor(),
         credentialsRepo

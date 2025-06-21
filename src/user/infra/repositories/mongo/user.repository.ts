@@ -6,7 +6,7 @@ import { UserModel } from '../../../../core/infra/models/user.model'
 export class MongoUserRepository implements UserRepository {
   async save(user: User): Promise<void> {
     await UserModel.create({
-      id: user.id.value,
+      _id: user.id.value,
       firstName: user.name.firstName,
       lastName: user.name.lastName,
       email: user.email.value,
@@ -17,7 +17,7 @@ export class MongoUserRepository implements UserRepository {
     if (!odmUser) return Optional.empty()
     return Optional.of(
       makeUser({
-        id: odmUser.id,
+        id: odmUser._id.toString(),
         firstName: odmUser.firstName,
         lastName: odmUser.lastName,
         email: odmUser.email,

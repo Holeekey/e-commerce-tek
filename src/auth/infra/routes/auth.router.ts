@@ -15,6 +15,7 @@ import { Sha256Encryptor } from '../../../core/infra/encryptors/sha-256/sha256-e
 import { LoginService } from '../../app/services/login/login.service'
 import { Role } from '../../app/models/credentials'
 import { verifyToken } from '../../../core/infra/middlewares/verify-token.middleware'
+import { ObjectIdGenerator } from '../../../core/infra/object-id/object-id-generator'
 
 export const authRouter = Router()
 
@@ -29,7 +30,7 @@ authRouter.post(
     const result = await new ExceptionDecorator(
       new LoggerDecorator(
         new RegisterService(
-          new UuidGenerator(),
+          new ObjectIdGenerator(),
           new JwtGenerator(),
           new Sha256Encryptor(),
           credentialsRepo

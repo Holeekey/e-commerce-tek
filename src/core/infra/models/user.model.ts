@@ -2,10 +2,6 @@ import { model, Schema } from 'mongoose'
 
 const userSchema = new Schema(
   {
-    id: {
-      type: String,
-      required: true,
-    },
     firstName: {
       type: String,
       required: true,
@@ -25,6 +21,6 @@ const userSchema = new Schema(
   }
 )
 
-userSchema.index({ id: 1, email: 1 })
+userSchema.index({ email: 1 })
 
 export const UserModel = model('user', userSchema)
