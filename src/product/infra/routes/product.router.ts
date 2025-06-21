@@ -21,6 +21,8 @@ import { validateParam } from '../../../core/infra/middlewares/validate-param.mi
 import { isObjectId } from '../../../core/utils/functions/is-object-id'
 import { ChangeProductStatusDTO } from '../dto/change-product-status.dto'
 import { ChangeProductStatusService } from '../../app/services/change-status/change-product-status.dto'
+import { validateQuery } from '../../../core/infra/middlewares/validate-query.middleware'
+import { PaginationDTO } from '../../../core/infra/pagination/dto/pagination.dto'
 
 export const productRouter = Router()
 const credentialsRepo = new MongoCredentialsRepository()
@@ -103,5 +105,25 @@ productRouter.get(
     })
 
     res.send(result.unwrap())
+  }
+)
+
+productRouter.get(
+  '/available',
+  verifyToken(credentialsRepo),
+  validateQuery(PaginationDTO),
+  async (req: any, res) => {
+    console.log(req.queryParams)
+
+    /* const result = await new ExceptionDecorator(
+      new LoggerDecorator(new FindOneProductService(productRepo), [
+        new BunyanLogger('Find One Product'),
+      ]),
+      expressExceptionHandler(res)
+    ).execute({
+      id: req.params.id,
+    }) */
+
+    res.send('a')
   }
 )
