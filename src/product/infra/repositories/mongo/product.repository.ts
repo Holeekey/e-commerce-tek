@@ -8,7 +8,7 @@ import { ProductName } from '../../../dom/value-objects/product-name'
 
 export class MongoProductRepository implements ProductRepository {
   async findOne(id: ProductId): Promise<Optional<Product>> {
-    const odmProduct = await ProductModel.findOne({ id: id.value }).lean()
+    const odmProduct = await ProductModel.findOne({ _id: id.value }).lean()
     if (!odmProduct) return Optional.empty()
 
     const odmProductPrice = await ProductPriceModel.findOne({
@@ -60,22 +60,58 @@ export class MongoProductRepository implements ProductRepository {
     )
   }
   async save(product: Product): Promise<void> {
-    await ProductModel.create({
+    // SE PUEDE MEJORAR USANDO EVENTOS DE DOMINIO
+
+    const existingProduct = await ProductModel.findOne({
       _id: product.id.value,
-      name: product.name.value,
-      stock: product.stock.quantity.value,
-      description: product.description ? product.description.value : undefined,
-      canStockBeDecimal: product.stock.isDecimal,
-    })
-    await ProductPriceModel.updateOne(
-      { productId: product.id.value, finishedAt: null },
-      { finishedAt: new Date() }
-    )
-    await ProductPriceModel.create({
-      productId: product.id.value,
-      price: product.price.value,
-      startedAt: new Date(),
-      finishedAt: null,
-    })
+    }).lean()
+
+    if (!existingProduct) {
+      await ProductModel.create({
+        _id: product.id.value,
+        name: product.name.value,
+        stock: product.stock.quantity.value,
+        description: product.description
+          ? product.description.value
+          : undefined,
+        canStockBeDecimal: product.stock.isDecimal,
+      })
+      await ProductPriceModel.create({
+        productId: product.id.value,
+        price: product.price.value,
+        startedAt: new Date(),
+        finishedAt: null,
+      })
+    } else {
+      await ProductModel.updateOne(
+        { _id: product.id.value },
+        {
+          name: product.name.value,
+          stock: product.stock.quantity.value,
+          description: product.description
+            ? product.description.value
+            : undefined,
+          canStockBeDecimal: product.stock.isDecimal,
+        }
+      )
+
+      const currentPrice = await ProductPriceModel.findOne({
+        productId: product.id.value,
+        finishedAt: null,
+      })
+
+      if (product.price.value !== currentPrice?.price) {
+        await ProductPriceModel.updateOne(
+          { productId: product.id.value, finishedAt: null },
+          { finishedAt: new Date() }
+        )
+        await ProductPriceModel.create({
+          productId: product.id.value,
+          price: product.price.value,
+          startedAt: new Date(),
+          finishedAt: null,
+        })
+      }
+    }
   }
 }
