@@ -16,9 +16,9 @@ export class Product extends AggregateRoot<ProductId> {
   constructor(
     id: ProductId,
     private _name: ProductName,
-    private _description: ProductDescription,
     private _price: ProductPrice,
-    private _stock: ProductStock
+    private _stock: ProductStock,
+    private _description?: ProductDescription
   ) {
     super(id)
     this.pushEvent(ProductCreated.createEvent(id, _name, _price))
@@ -28,7 +28,7 @@ export class Product extends AggregateRoot<ProductId> {
     return this._name
   }
 
-  get description(): ProductDescription {
+  get description(): ProductDescription | undefined {
     return this._description
   }
 
@@ -79,3 +79,19 @@ export class Product extends AggregateRoot<ProductId> {
     }
   }
 }
+
+export const makeProduct = (data: {
+  id: string
+  name: string
+  description?: string
+  price: number
+  stock: number
+  canStockBeDecimal: boolean
+}) =>
+  new Product(
+    new ProductId(data.id),
+    new ProductName(data.name),
+    new ProductPrice(data.price),
+    new ProductStock(new StockQuantity(data.stock), data.canStockBeDecimal),
+    data.description ? new ProductDescription(data.description) : undefined
+  )
