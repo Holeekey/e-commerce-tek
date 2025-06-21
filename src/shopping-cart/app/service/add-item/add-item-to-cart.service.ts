@@ -16,7 +16,6 @@ export class AddItemToCartService
   implements ApplicationService<AddItemToCartData, AddItemToCartResponse>
 {
   constructor(
-    private readonly userRepo: UserRepository,
     private readonly productRepo: ProductRepository,
     private readonly cartRepo: ShoppingCartRepository
   ) {}
@@ -24,12 +23,6 @@ export class AddItemToCartService
   async execute(
     data: AddItemToCartData
   ): Promise<Result<AddItemToCartResponse>> {
-    const userResult = await this.userRepo.findOne(new UserId(data.userId))
-
-    if (userResult.isEmpty()) {
-      return Result.failure(new UserNotFoundException())
-    }
-
     const productResult = await this.productRepo.findOne(
       new ProductId(data.productId)
     )
@@ -44,7 +37,13 @@ export class AddItemToCartService
       return Result.failure(new DecimalStockException())
     }
 
-    const cart = (await this.cartRepo.findByUserId(data.userId)).get()
+    const cartResult = await this.cartRepo.findByUserId(data.userId)
+
+    if (cartResult.isEmpty()) {
+      return Result.failure(new UserNotFoundException())
+    }
+
+    const cart = cartResult.get()
 
     if (cart.items.some((item) => item.productId === data.productId)) {
       cart.items = cart.items.map((item) => {

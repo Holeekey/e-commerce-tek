@@ -11,21 +11,16 @@ export class RemoveItemFromCartService
   implements
     ApplicationService<RemoveItemFromCartData, RemoveItemFromCartResponse>
 {
-  constructor(
-    private readonly userRepo: UserRepository,
-    private readonly cartRepo: ShoppingCartRepository
-  ) {}
+  constructor(private readonly cartRepo: ShoppingCartRepository) {}
 
   async execute(
     data: RemoveItemFromCartData
   ): Promise<Result<RemoveItemFromCartResponse>> {
-    const userResult = await this.userRepo.findOne(new UserId(data.userId))
+    const cartResult = await this.cartRepo.findByUserId(data.userId)
 
-    if (userResult.isEmpty()) {
+    if (cartResult.isEmpty()) {
       return Result.failure(new UserNotFoundException())
     }
-
-    const cartResult = await this.cartRepo.findByUserId(data.userId)
 
     const cart = cartResult.get()
 

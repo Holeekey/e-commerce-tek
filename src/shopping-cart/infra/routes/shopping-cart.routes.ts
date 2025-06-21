@@ -17,6 +17,7 @@ import { expressExceptionHandler } from '../../../core/infra/exception-handlers/
 import { AddItemToCartService } from '../../app/service/add-item/add-item-to-cart.service'
 import { getUserFromReq } from '../../../core/infra/utils/get-user-from-req'
 import { RemoveItemFromCartService } from '../../app/service/remove-item/remove-item-from-cart.service'
+import { GetCartService } from '../../app/service/get/get-cart.service'
 
 export const shoppingCartRouter = Router()
 
@@ -25,12 +26,25 @@ const userRepo = new MongoUserRepository()
 const productRepo = new MongoProductRepository()
 const cartRepo = new MongoShoppingCartRepository()
 
-shoppingCartRouter.get('/', (req, res) => {
-  res.send({
-    message: 'Shopping cart retrieved successfully',
-    items: [],
-  })
-})
+shoppingCartRouter.get(
+  '/',
+  verifyToken(credentialsRepo),
+  verifyUserRole(Role.CLIENT),
+  async (req, res) => {
+    const user = getUserFromReq(req)
+
+    const result = await new ExceptionDecorator(
+      new LoggerDecorator(new GetCartService(cartRepo), [
+        new BunyanLogger('Get Cart'),
+      ]),
+      expressExceptionHandler(res)
+    ).execute({
+      userId: user.id,
+    })
+
+    res.send(result.unwrap())
+  }
+)
 
 shoppingCartRouter.patch(
   '/add/:id',
@@ -42,10 +56,9 @@ shoppingCartRouter.patch(
     const user = getUserFromReq(req)
 
     const result = await new ExceptionDecorator(
-      new LoggerDecorator(
-        new AddItemToCartService(userRepo, productRepo, cartRepo),
-        [new BunyanLogger('Add Item to Cart')]
-      ),
+      new LoggerDecorator(new AddItemToCartService(productRepo, cartRepo), [
+        new BunyanLogger('Add Item to Cart'),
+      ]),
       expressExceptionHandler(res)
     ).execute({
       userId: user.id,
@@ -66,7 +79,7 @@ shoppingCartRouter.patch(
     const user = getUserFromReq(req)
 
     const result = await new ExceptionDecorator(
-      new LoggerDecorator(new RemoveItemFromCartService(userRepo, cartRepo), [
+      new LoggerDecorator(new RemoveItemFromCartService(cartRepo), [
         new BunyanLogger('Remove Item from Cart'),
       ]),
       expressExceptionHandler(res)
