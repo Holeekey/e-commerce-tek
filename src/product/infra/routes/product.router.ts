@@ -19,10 +19,10 @@ import { ModifyStockDTO } from '../dto/modify-stock.dto'
 import { ModifyStockService } from '../../app/services/modify-stock/modify-stock.service'
 import { validateParam } from '../../../core/infra/middlewares/validate-param.middleware'
 import { isObjectId } from '../../../core/utils/functions/is-object-id'
-import { ChangeProductStatusDTO } from '../dto/change-product-status.dto'
-import { ChangeProductStatusService } from '../../app/services/change-status/change-product-status.dto'
 import { validateQuery } from '../../../core/infra/middlewares/validate-query.middleware'
 import { PaginationDTO } from '../../../core/infra/pagination/dto/pagination.dto'
+import { FindAvailableProductsService } from '../../app/services/find-available/find-available-products.service'
+import { FindAvailableProductData } from '../../app/services/find-available/dto/data'
 
 export const productRouter = Router()
 const credentialsRepo = new MongoCredentialsRepository()
@@ -115,15 +115,13 @@ productRouter.get(
   async (req: any, res) => {
     console.log(req.queryParams)
 
-    /* const result = await new ExceptionDecorator(
-      new LoggerDecorator(new FindOneProductService(productRepo), [
-        new BunyanLogger('Find One Product'),
+    const result = await new ExceptionDecorator(
+      new LoggerDecorator(new FindAvailableProductsService(productRepo), [
+        new BunyanLogger('Find Available Products'),
       ]),
       expressExceptionHandler(res)
-    ).execute({
-      id: req.params.id,
-    }) */
+    ).execute(req.queryParams)
 
-    res.send('a')
+    res.send(result.unwrap())
   }
 )
