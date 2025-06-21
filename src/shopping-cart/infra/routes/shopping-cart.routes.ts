@@ -70,7 +70,7 @@ shoppingCartRouter.patch(
   }
 )
 
-shoppingCartRouter.patch(
+shoppingCartRouter.delete(
   '/remove/:id',
   verifyToken(credentialsRepo),
   verifyUserRole(Role.CLIENT),
