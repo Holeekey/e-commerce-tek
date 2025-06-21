@@ -13,6 +13,7 @@ import { ExceptionDecorator } from './core/app/decorators/exception.decorator'
 import { productRouter } from './product/infra/routes/product.router'
 import { ObjectIdGenerator } from './core/infra/object-id/object-id-generator'
 import { shoppingCartRouter } from './shopping-cart/infra/routes/shopping-cart.routes'
+import { orderRouter } from './order/infra/routes/order.router'
 
 console.log('Connecting to database...')
 
@@ -58,6 +59,8 @@ mongoose
     app.use('/product', productRouter)
 
     app.use('/cart', shoppingCartRouter)
+
+    app.use('/order', orderRouter)
 
     app.get('/', (_req, res) => {
       res.send('Welcome to E-Commerce-Tek!')

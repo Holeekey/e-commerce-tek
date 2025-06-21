@@ -12,6 +12,9 @@ import { OrderShipped } from './events/order-shipped'
 import { InvalidOrderDeliveryException } from './exceptions/invalid-order-delivery'
 import { OrderDelivered } from './events/order-delivered'
 import { OrderCreationDate } from './value-objects/order-creation-date'
+import { ProductId } from '../../product/dom/value-objects/product-id'
+import { OrderItemQuantity } from './value-objects/order-item-quantity'
+import { OrderItemUnitPrice } from './value-objects/order-item-price'
 
 export class Order extends AggregateRoot<OrderId> {
   constructor(
@@ -57,6 +60,10 @@ export class Order extends AggregateRoot<OrderId> {
     return this._status.value === OrderStatusEnum.CANCELLED
   }
 
+  addItem(item: OrderItem): void {
+    this._items.push(item)
+  }
+
   getTotalPrice(): number {
     return this._items.reduce((total, item) => {
       return total + item.quantity.value * item.unitPrice.value
@@ -93,3 +100,29 @@ export class Order extends AggregateRoot<OrderId> {
     }
   }
 }
+
+export const makeOrder = (data: {
+  id: string
+  status?: OrderStatusEnum
+  userId: string
+  items: {
+    productId: string
+    quantity: number
+    unitPrice: number
+  }[]
+  creationDate?: Date
+}) =>
+  new Order(
+    new OrderId(data.id),
+    new OrderStatus(data.status ?? OrderStatusEnum.PENDING),
+    new UserId(data.userId),
+    data.items.map(
+      (item) =>
+        new OrderItem(
+          new ProductId(item.productId),
+          new OrderItemQuantity(item.quantity),
+          new OrderItemUnitPrice(item.unitPrice)
+        )
+    ),
+    new OrderCreationDate(data.creationDate ?? new Date())
+  )

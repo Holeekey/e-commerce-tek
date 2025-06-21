@@ -22,7 +22,6 @@ import { GetCartService } from '../../app/service/get/get-cart.service'
 export const shoppingCartRouter = Router()
 
 const credentialsRepo = new MongoCredentialsRepository()
-const userRepo = new MongoUserRepository()
 const productRepo = new MongoProductRepository()
 const cartRepo = new MongoShoppingCartRepository()
 

@@ -79,6 +79,13 @@ export class Product extends AggregateRoot<ProductId> {
     )
   }
 
+  hasEnoughStock(quantity: StockQuantity): boolean {
+    return (
+      this._stock.quantity.isGreaterThan(quantity) ||
+      this._stock.quantity.equals(quantity)
+    )
+  }
+
   updateStatus(active: boolean): void {
     this._active = active
     this.pushEvent(ProductStatusUpdated.createEvent(this.id, this._active))

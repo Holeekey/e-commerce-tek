@@ -10,7 +10,7 @@ export enum OrderStatusEnum {
 export class OrderStatus implements ValueObject<OrderStatus> {
   constructor(private readonly _status: OrderStatusEnum) {}
 
-  get value(): string {
+  get value(): OrderStatusEnum {
     return this._status
   }
 
