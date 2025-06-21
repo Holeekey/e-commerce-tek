@@ -1,6 +1,7 @@
 import { verify } from 'jsonwebtoken'
 import envConfig from '../env/env-config'
 import { CredentialsRepository } from '../../../auth/app/repositories/credentials.repository'
+import { isObjectId } from '../../utils/functions/is-object-id'
 
 export const verifyToken = (credentialsRepo: CredentialsRepository) => {
   return async (req, res, next) => {
@@ -12,6 +13,9 @@ export const verifyToken = (credentialsRepo: CredentialsRepository) => {
     try {
       const payload = verify(token, envConfig.jwtSecret)
       const userId = payload['id']
+      if (!isObjectId(userId)) {
+        throw new Error('Invalid user ID format in JWT')
+      }
       if (userId === undefined) {
         throw new Error('User ID not found in JWT')
       }
