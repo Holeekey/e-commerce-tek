@@ -11,9 +11,11 @@ import { CreateProductService } from '../../app/services/create/create-product.s
 import { UuidGenerator } from '../../../core/infra/uuid/uuid-generator'
 import { BunyanLogger } from '../../../core/infra/loggers/bunyan.logger'
 import { expressExceptionHandler } from '../../../core/infra/exception-handlers/express.exception-handler'
+import { MongoProductRepository } from '../repositories/mongo/product.repository'
 
 export const productRouter = Router()
 const credentialsRepo = new MongoCredentialsRepository()
+const productRepo = new MongoProductRepository()
 
 productRouter.post(
   '/create',
@@ -22,9 +24,10 @@ productRouter.post(
   verifyUserRole(Role.ADMIN),
   async (req, res) => {
     const result = await new ExceptionDecorator(
-      new LoggerDecorator(new CreateProductService(new UuidGenerator()), [
-        new BunyanLogger('Create Product'),
-      ]),
+      new LoggerDecorator(
+        new CreateProductService(new UuidGenerator(), productRepo),
+        [new BunyanLogger('Create Product')]
+      ),
       expressExceptionHandler(res)
     ).execute({
       ...req.body,

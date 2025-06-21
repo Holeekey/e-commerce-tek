@@ -1,7 +1,7 @@
 import { ValueObject } from '../../../core/dom/value-object/value-object'
-import { InvalidProductPriceException } from '../exceptions/invalid-product-price'
 import { InvalidStockOperationException } from '../exceptions/invalid-stock-operation'
 import { StockQuantity } from './stock-quantity'
+import { InvalidProductStockException } from '../exceptions/invalid-product-stock'
 
 export class ProductStock implements ValueObject<ProductStock> {
   constructor(
@@ -9,7 +9,7 @@ export class ProductStock implements ValueObject<ProductStock> {
     private readonly _canStockBeDecimal: boolean
   ) {
     if (!_canStockBeDecimal && _quantity.isDecimal) {
-      throw new InvalidProductPriceException()
+      throw new InvalidProductStockException()
     }
   }
 

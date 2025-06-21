@@ -64,13 +64,12 @@ export class MongoProductRepository implements ProductRepository {
       id: product.id.value,
       name: product.name.value,
       stock: product.stock.quantity.value,
-      description: product.description ?? undefined,
+      description: product.description ? product.description.value : undefined,
       canStockBeDecimal: product.stock.isDecimal,
     })
     await ProductPriceModel.updateOne(
       { productId: product.id.value, finishedAt: null },
-      { finishedAt: new Date() },
-      { upsert: true }
+      { finishedAt: new Date() }
     )
     await ProductPriceModel.create({
       productId: product.id.value,
