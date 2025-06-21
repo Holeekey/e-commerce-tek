@@ -1,4 +1,5 @@
 import {
+  IsBoolean,
   IsNumber,
   IsOptional,
   IsString,
@@ -12,6 +13,7 @@ export class UpdateProductDTO {
   @IsString()
   @MinLength(3)
   @MaxLength(100)
+  @IsOptional()
   name: string
 
   @IsString()
@@ -22,5 +24,10 @@ export class UpdateProductDTO {
   @IsNumber({ maxDecimalPlaces: 2 })
   @Min(0)
   @Max(999_999_999.99)
+  @IsOptional()
   price: number
+
+  @IsBoolean()
+  @IsOptional()
+  active: boolean
 }

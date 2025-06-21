@@ -11,6 +11,7 @@ import { ProductPriceUpdated } from './events/product-price-updated'
 import { StockQuantity } from './value-objects/stock-quantity'
 import { ProductStockAdded } from './events/product-stock-added'
 import { ProductStockSubstracted } from './events/product-stock-substracted'
+import { ProductStatusUpdated } from './events/product-status-updated'
 
 export class Product extends AggregateRoot<ProductId> {
   constructor(
@@ -18,6 +19,7 @@ export class Product extends AggregateRoot<ProductId> {
     private _name: ProductName,
     private _price: ProductPrice,
     private _stock: ProductStock,
+    private _active: boolean,
     private _description?: ProductDescription
   ) {
     super(id)
@@ -38,6 +40,10 @@ export class Product extends AggregateRoot<ProductId> {
 
   get stock(): ProductStock {
     return this._stock
+  }
+
+  get active(): boolean {
+    return this._active
   }
 
   updateName(name: ProductName): void {
@@ -73,8 +79,19 @@ export class Product extends AggregateRoot<ProductId> {
     )
   }
 
+  updateStatus(active: boolean): void {
+    this._active = active
+    this.pushEvent(ProductStatusUpdated.createEvent(this.id, this._active))
+  }
+
   protected validateState(): void {
-    if (!this.id || !this._name || !this._price || !this._stock) {
+    if (
+      !this.id ||
+      !this._name ||
+      !this._price ||
+      !this._stock ||
+      this._active === undefined
+    ) {
       throw new Error('Invalid product state')
     }
   }
@@ -86,6 +103,7 @@ export const makeProduct = (data: {
   description?: string
   price: number
   stock: number
+  active?: boolean
   canStockBeDecimal: boolean
 }) =>
   new Product(
@@ -93,5 +111,6 @@ export const makeProduct = (data: {
     new ProductName(data.name),
     new ProductPrice(data.price),
     new ProductStock(new StockQuantity(data.stock), data.canStockBeDecimal),
+    data.active ?? true,
     data.description ? new ProductDescription(data.description) : undefined
   )

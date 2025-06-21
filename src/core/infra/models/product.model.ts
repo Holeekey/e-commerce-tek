@@ -18,6 +18,10 @@ const productSchema = new Schema(
       type: Boolean,
       required: true,
     },
+    active: {
+      type: Boolean,
+      required: true,
+    },
   },
   {
     _id: true,

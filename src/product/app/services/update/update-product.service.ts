@@ -51,6 +51,10 @@ export class UpdateProductService
       product.updatePrice(new ProductPrice(data.price))
     }
 
+    if (data.active !== undefined) {
+      product.updateStatus(data.active)
+    }
+
     await this.productRepository.save(product)
 
     return Result.success({

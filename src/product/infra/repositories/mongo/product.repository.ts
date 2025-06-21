@@ -30,6 +30,7 @@ export class MongoProductRepository implements ProductRepository {
         description: odmProduct.description ?? undefined,
         canStockBeDecimal: odmProduct.canStockBeDecimal,
         price: odmProductPrice.price,
+        active: odmProduct.active,
       })
     )
   }
@@ -74,6 +75,7 @@ export class MongoProductRepository implements ProductRepository {
         description: product.description
           ? product.description.value
           : undefined,
+        active: product.active,
         canStockBeDecimal: product.stock.isDecimal,
       })
       await ProductPriceModel.create({
@@ -91,6 +93,7 @@ export class MongoProductRepository implements ProductRepository {
           description: product.description
             ? product.description.value
             : undefined,
+          active: product.active,
           canStockBeDecimal: product.stock.isDecimal,
         }
       )
