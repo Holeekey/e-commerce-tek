@@ -21,8 +21,8 @@ export class ProductStockSubstracted {
       dispatcherId: dispatcher.value,
       name: ProductStockSubstracted.name,
       context: {
-        newStock: newStock.quantity,
-        quantitySubstracted: oldStock.quantity - newStock.quantity,
+        newStock: newStock.quantity.value,
+        quantitySubstracted: oldStock.quantity.value - newStock.quantity.value,
       },
     })
   }
