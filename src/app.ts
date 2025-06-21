@@ -12,6 +12,7 @@ import { Role } from './auth/app/models/credentials'
 import { ExceptionDecorator } from './core/app/decorators/exception.decorator'
 import { productRouter } from './product/infra/routes/product.router'
 import { ObjectIdGenerator } from './core/infra/object-id/object-id-generator'
+import { shoppingCartRouter } from './shopping-cart/infra/routes/shopping-cart.routes'
 
 console.log('Connecting to database...')
 
@@ -55,6 +56,8 @@ mongoose
     app.use('/user', userRouter)
 
     app.use('/product', productRouter)
+
+    app.use('/cart', shoppingCartRouter)
 
     app.get('/', (_req, res) => {
       res.send('Welcome to E-Commerce-Tek!')
