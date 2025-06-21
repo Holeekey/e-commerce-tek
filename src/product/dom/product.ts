@@ -65,7 +65,7 @@ export class Product extends AggregateRoot<ProductId> {
     )
   }
 
-  substractStock(stock: StockQuantity): void {
+  subtractStock(stock: StockQuantity): void {
     const oldStock = this._stock
     this._stock = this._stock.subtract(stock)
     this.pushEvent(

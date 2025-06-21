@@ -16,6 +16,8 @@ import { FindOneProductService } from '../../app/services/find-one/find-one-prod
 import { ObjectIdGenerator } from '../../../core/infra/object-id/object-id-generator'
 import { UpdateProductDTO } from '../dto/update-product.dto'
 import { UpdateProductService } from '../../app/services/update/update-product.service'
+import { ModifyStockDTO } from '../dto/modify-stock.dto'
+import { ModifyStockService } from '../../app/services/modify-stock/modify-stock.service'
 
 export const productRouter = Router()
 const credentialsRepo = new MongoCredentialsRepository()
@@ -41,7 +43,7 @@ productRouter.post(
   }
 )
 
-productRouter.patch(
+productRouter.put(
   '/update/:id',
   validateBody(UpdateProductDTO),
   verifyToken(credentialsRepo),
@@ -50,6 +52,26 @@ productRouter.patch(
     const result = await new ExceptionDecorator(
       new LoggerDecorator(new UpdateProductService(productRepo), [
         new BunyanLogger('Update Product'),
+      ]),
+      expressExceptionHandler(res)
+    ).execute({
+      id: req.params.id,
+      ...req.body,
+    })
+
+    res.send(result.unwrap())
+  }
+)
+
+productRouter.patch(
+  '/stock/:id',
+  validateBody(ModifyStockDTO),
+  verifyToken(credentialsRepo),
+  verifyUserRole(Role.ADMIN),
+  async (req, res) => {
+    const result = await new ExceptionDecorator(
+      new LoggerDecorator(new ModifyStockService(productRepo), [
+        new BunyanLogger('Modify Stock'),
       ]),
       expressExceptionHandler(res)
     ).execute({

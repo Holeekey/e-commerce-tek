@@ -8,7 +8,7 @@ import { ProductName } from '../../../dom/value-objects/product-name'
 import { ProductNameExistsException } from '../../exceptions/name-exists'
 import { makeProduct } from '../../../dom/product'
 import { getDecimalsQuantity } from '../../../../core/utils/functions/get-decimals-quantity'
-import { DecimalStockException } from '../../exceptions/decimal_stock'
+import { DecimalStockException } from '../../exceptions/decimal-stock'
 export class CreateProductService
   implements ApplicationService<CreateProductDTO, CreateProductResponse>
 {
