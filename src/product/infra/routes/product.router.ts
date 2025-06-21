@@ -12,6 +12,7 @@ import { UuidGenerator } from '../../../core/infra/uuid/uuid-generator'
 import { BunyanLogger } from '../../../core/infra/loggers/bunyan.logger'
 import { expressExceptionHandler } from '../../../core/infra/exception-handlers/express.exception-handler'
 import { MongoProductRepository } from '../repositories/mongo/product.repository'
+import { FindOneProductService } from '../../app/services/find-one/find-one-product.service'
 
 export const productRouter = Router()
 const credentialsRepo = new MongoCredentialsRepository()
@@ -31,6 +32,23 @@ productRouter.post(
       expressExceptionHandler(res)
     ).execute({
       ...req.body,
+    })
+
+    res.send(result.unwrap())
+  }
+)
+
+productRouter.get(
+  '/one/:id',
+  verifyToken(credentialsRepo),
+  async (req, res) => {
+    const result = await new ExceptionDecorator(
+      new LoggerDecorator(new FindOneProductService(productRepo), [
+        new BunyanLogger('Find One Product'),
+      ]),
+      expressExceptionHandler(res)
+    ).execute({
+      id: req.params.id,
     })
 
     res.send(result.unwrap())
