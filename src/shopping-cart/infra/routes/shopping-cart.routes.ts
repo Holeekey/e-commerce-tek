@@ -16,6 +16,7 @@ import { BunyanLogger } from '../../../core/infra/loggers/bunyan.logger'
 import { expressExceptionHandler } from '../../../core/infra/exception-handlers/express.exception-handler'
 import { AddItemToCartService } from '../../app/service/add-item/add-item-to-cart.service'
 import { getUserFromReq } from '../../../core/infra/utils/get-user-from-req'
+import { RemoveItemFromCartService } from '../../app/service/remove-item/remove-item-from-cart.service'
 
 export const shoppingCartRouter = Router()
 
@@ -56,10 +57,24 @@ shoppingCartRouter.patch(
   }
 )
 
-shoppingCartRouter.post('/remove', (req, res) => {
-  const { productId } = req.body
-  res.send({
-    message: 'Product removed from cart successfully',
-    productId,
-  })
-})
+shoppingCartRouter.patch(
+  '/remove/:id',
+  verifyToken(credentialsRepo),
+  verifyUserRole(Role.CLIENT),
+  validateParam('id', isObjectId),
+  async (req, res) => {
+    const user = getUserFromReq(req)
+
+    const result = await new ExceptionDecorator(
+      new LoggerDecorator(new RemoveItemFromCartService(userRepo, cartRepo), [
+        new BunyanLogger('Remove Item from Cart'),
+      ]),
+      expressExceptionHandler(res)
+    ).execute({
+      userId: user.id,
+      productId: req.params.id,
+    })
+
+    res.send(result.unwrap())
+  }
+)
