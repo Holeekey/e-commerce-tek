@@ -13,58 +13,29 @@ import { ProductName } from '../../../dom/value-objects/product-name'
 import { StockQuantity } from '../../../dom/value-objects/stock-quantity'
 
 export class MongoProductRepository implements ProductRepository {
+  private odmToProduct(odmProduct): Product {
+    return makeProduct({
+      id: odmProduct._id.toString(),
+      name: odmProduct.name,
+      stock: odmProduct.stock,
+      description: odmProduct.description ?? undefined,
+      canStockBeDecimal: odmProduct.canStockBeDecimal,
+      price: odmProduct.currentPrice,
+      active: odmProduct.active,
+    })
+  }
+
   async findOne(id: ProductId): Promise<Optional<Product>> {
     const odmProduct = await ProductModel.findOne({ _id: id.value }).lean()
     if (!odmProduct) return Optional.empty()
 
-    const odmProductPrice = await ProductPriceModel.findOne({
-      productId: odmProduct._id.toString(),
-      finishedAt: null,
-    }).lean()
-
-    if (!odmProductPrice) {
-      throw new Error(
-        `Product price not found for product with id ${odmProduct._id.toString()}`
-      )
-    }
-
-    return Optional.of(
-      makeProduct({
-        id: odmProduct._id.toString(),
-        name: odmProduct.name,
-        stock: odmProduct.stock,
-        description: odmProduct.description ?? undefined,
-        canStockBeDecimal: odmProduct.canStockBeDecimal,
-        price: odmProductPrice.price,
-        active: odmProduct.active,
-      })
-    )
+    return Optional.of(this.odmToProduct(odmProduct))
   }
   async findByName(name: ProductName): Promise<Optional<Product>> {
     const odmProduct = await ProductModel.findOne({ name: name.value }).lean()
     if (!odmProduct) return Optional.empty()
 
-    const odmProductPrice = await ProductPriceModel.findOne({
-      productId: odmProduct._id.toString(),
-      finishedAt: null,
-    }).lean()
-
-    if (!odmProductPrice) {
-      throw new Error(
-        `Product price not found for product with id ${odmProduct._id.toString()}`
-      )
-    }
-
-    return Optional.of(
-      makeProduct({
-        id: odmProduct._id.toString(),
-        name: odmProduct.name,
-        stock: odmProduct.stock,
-        description: odmProduct.description ?? undefined,
-        canStockBeDecimal: odmProduct.canStockBeDecimal,
-        price: odmProductPrice.price,
-      })
-    )
+    return Optional.of(this.odmToProduct(odmProduct))
   }
 
   async findMany(
@@ -87,24 +58,7 @@ export class MongoProductRepository implements ProductRepository {
       .lean()
     const count = await ProductModel.countDocuments(query)
 
-    const productIds = odmProducts.map((p) => p._id.toString())
-    const odmPrices = await ProductPriceModel.find({
-      productId: { $in: productIds },
-      finishedAt: null,
-    }).lean()
-    const priceMap = new Map(odmPrices.map((p) => [p.productId, p.price]))
-
-    const data = odmProducts.map((odmProduct) =>
-      makeProduct({
-        id: odmProduct._id.toString(),
-        name: odmProduct.name,
-        stock: odmProduct.stock,
-        description: odmProduct.description ?? undefined,
-        canStockBeDecimal: odmProduct.canStockBeDecimal,
-        price: priceMap.get(odmProduct._id.toString())!,
-        active: odmProduct.active,
-      })
-    )
+    const data = odmProducts.map((odmProduct) => this.odmToProduct(odmProduct))
 
     return makePaginationResponse({
       data,
@@ -130,6 +84,7 @@ export class MongoProductRepository implements ProductRepository {
           ? product.description.value
           : undefined,
         active: product.active,
+        currentPrice: product.price.value,
         canStockBeDecimal: product.stock.isDecimal,
       })
       await ProductPriceModel.create({

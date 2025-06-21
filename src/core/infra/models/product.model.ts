@@ -14,6 +14,10 @@ const productSchema = new Schema(
       type: Number,
       required: true,
     },
+    currentPrice: {
+      type: Number,
+      required: true,
+    },
     canStockBeDecimal: {
       type: Boolean,
       required: true,
