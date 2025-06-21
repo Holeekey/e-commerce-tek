@@ -1,4 +1,4 @@
 build
-mongo
+./mongo
 node_modules
 .env
