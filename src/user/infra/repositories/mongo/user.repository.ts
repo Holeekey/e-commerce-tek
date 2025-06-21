@@ -13,7 +13,7 @@ export class MongoUserRepository implements UserRepository {
     })
   }
   async findOne(id: UserId): Promise<Optional<User>> {
-    const odmUser = await UserModel.findOne({ id: id.value }).lean()
+    const odmUser = await UserModel.findOne({ _id: id.value }).lean()
     if (!odmUser) return Optional.empty()
     return Optional.of(
       makeUser({
