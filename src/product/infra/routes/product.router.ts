@@ -18,6 +18,8 @@ import { UpdateProductDTO } from '../dto/update-product.dto'
 import { UpdateProductService } from '../../app/services/update/update-product.service'
 import { ModifyStockDTO } from '../dto/modify-stock.dto'
 import { ModifyStockService } from '../../app/services/modify-stock/modify-stock.service'
+import { validateParam } from '../../../core/infra/middlewares/validate-param.middleware'
+import { isObjectId } from '../../../core/utils/functions/is-object-id'
 
 export const productRouter = Router()
 const credentialsRepo = new MongoCredentialsRepository()
@@ -25,9 +27,10 @@ const productRepo = new MongoProductRepository()
 
 productRouter.post(
   '/create',
-  validateBody(CreateProductDTO),
   verifyToken(credentialsRepo),
   verifyUserRole(Role.ADMIN),
+  validateParam('id', isObjectId),
+  validateBody(CreateProductDTO),
   async (req, res) => {
     const result = await new ExceptionDecorator(
       new LoggerDecorator(
@@ -45,9 +48,10 @@ productRouter.post(
 
 productRouter.put(
   '/update/:id',
-  validateBody(UpdateProductDTO),
   verifyToken(credentialsRepo),
   verifyUserRole(Role.ADMIN),
+  validateParam('id', isObjectId),
+  validateBody(UpdateProductDTO),
   async (req, res) => {
     const result = await new ExceptionDecorator(
       new LoggerDecorator(new UpdateProductService(productRepo), [
@@ -65,9 +69,10 @@ productRouter.put(
 
 productRouter.patch(
   '/stock/:id',
-  validateBody(ModifyStockDTO),
   verifyToken(credentialsRepo),
   verifyUserRole(Role.ADMIN),
+  validateParam('id', isObjectId),
+  validateBody(ModifyStockDTO),
   async (req, res) => {
     const result = await new ExceptionDecorator(
       new LoggerDecorator(new ModifyStockService(productRepo), [
