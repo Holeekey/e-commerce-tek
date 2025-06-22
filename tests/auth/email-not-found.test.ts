@@ -3,6 +3,7 @@ import { MockTokenGenerator } from '../mocks/providers/mock-token-generator'
 import { MockCredentialRepository } from '../mocks/repositories/mock-credential.repository'
 import { mockCredentials } from '../data/user-mock.data'
 import { LoginService } from '../../src/auth/app/services/login/login.service'
+import { AuthExceptionCode } from '../../src/auth/app/exceptions/codes/auth-exception-codes'
 
 test('Email not found', () => {
   const credentialsRepo = new MockCredentialRepository(mockCredentials)
@@ -15,6 +16,7 @@ test('Email not found', () => {
       password: 'password1234',
     })
     .then((res) => {
-      expect(res.isException()).toBe(true)
+      const err: any = res.getException()
+      expect(err.code).toBe(AuthExceptionCode.INVALID_EMAIL)
     })
 })

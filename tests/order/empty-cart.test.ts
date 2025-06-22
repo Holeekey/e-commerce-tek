@@ -6,6 +6,7 @@ import { CreateOrderService } from '../../src/order/app/services/create/create-o
 import { ConcreteDateProvider } from '../../src/core/infra/date/concrete-date.provider'
 import { mockCarts, mockUserId1 } from '../data/cart-mock.data'
 import { mockProducts } from '../data/product-mock.data'
+import { OrderExceptionCode } from '../../src/order/app/exceptions/codes/order-exception-codes'
 
 test('Empty Cart', () => {
   const productRepo = new MockProductRepository(mockProducts)
@@ -23,6 +24,7 @@ test('Empty Cart', () => {
       userId: mockUserId1,
     })
     .then((res) => {
-      expect(res.isException()).toBe(true)
+      const err: any = res.getException()
+      expect(err.code).toBe(OrderExceptionCode.EMPTY_CART)
     })
 })

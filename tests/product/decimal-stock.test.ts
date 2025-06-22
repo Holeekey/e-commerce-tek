@@ -1,6 +1,7 @@
 import { CreateProductService } from '../../src/product/app/services/create/create-product.service'
 import { ObjectIdGenerator } from '../../src/core/infra/object-id/object-id-generator'
 import { MockProductRepository } from '../mocks/repositories/mock-product.repository'
+import { ProductExceptionCode } from '../../src/product/app/exceptions/codes/product-exception-codes'
 
 test('Decimal Stock in Not Decimal Stock Product', () => {
   const productRepo = new MockProductRepository()
@@ -14,6 +15,7 @@ test('Decimal Stock in Not Decimal Stock Product', () => {
       price: 100,
     })
     .then((res) => {
-      expect(res.isException()).toBe(true)
+      const err: any = res.getException()
+      expect(err.code).toBe(ProductExceptionCode.DECIMAL_STOCK)
     })
 })

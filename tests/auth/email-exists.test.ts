@@ -5,6 +5,7 @@ import { RegisterService } from '../../src/auth/app/services/register/register.s
 import { ObjectIdGenerator } from '../../src/core/infra/object-id/object-id-generator'
 import { Role } from '../../src/auth/app/models/credentials'
 import { mockCredentials } from '../data/user-mock.data'
+import { AuthExceptionCode } from '../../src/auth/app/exceptions/codes/auth-exception-codes'
 
 test('Email Already Exists', () => {
   const credentialsRepo = new MockCredentialRepository(mockCredentials)
@@ -23,6 +24,7 @@ test('Email Already Exists', () => {
       password: 'password123',
     })
     .then((res) => {
-      expect(res.isException()).toBe(true)
+      const err: any = res.getException()
+      expect(err.code).toBe(AuthExceptionCode.EMAIL_TAKEN)
     })
 })
