@@ -14,4 +14,8 @@ export interface OrderRepository {
     pagination: Pagination,
     filters?: { userId: UserId }
   ): Promise<PaginationResponse<Order>>
+  findManyByUserId(
+    pagination: Pagination,
+    userId: UserId
+  ): Promise<PaginationResponse<Order>>
 }

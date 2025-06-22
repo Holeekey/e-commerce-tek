@@ -21,12 +21,12 @@ export class GetOrderHistoryService
   async execute(
     data: GetOrderHistoryData
   ): Promise<Result<PaginationResponse<GetOrderHistoryResponse>>> {
-    const orders = await this.orderRepo.findMany(
+    const orders = await this.orderRepo.findManyByUserId(
       {
         page: data.page,
         limit: data.limit,
       },
-      { userId: new UserId(data.userId) }
+      new UserId(data.userId)
     )
 
     const response: PaginationResponse<GetOrderHistoryResponse> = {

@@ -4,11 +4,13 @@ import {
   PaginationResponse,
 } from '../../../../core/app/pagination/pagination'
 import { OrderModel } from '../../../../core/infra/models/order.model'
+import { UserModel } from '../../../../core/infra/models/user.model'
 import { Optional } from '../../../../core/utils/optional'
 import { UserId } from '../../../../user/dom/value-objects/user-id'
 import { OrderRepository } from '../../../app/repositories/order.repository'
 import { makeOrder, Order } from '../../../dom/order'
 import { OrderId } from '../../../dom/value-objects/order-id'
+import { paginateArray } from '../../../../core/utils/functions/paginate-array'
 
 export class MongoOrderRepository implements OrderRepository {
   private odmToOrder(odmOrder): Order {
@@ -40,6 +42,13 @@ export class MongoOrderRepository implements OrderRepository {
       },
       { upsert: true }
     )
+
+    const user = (await UserModel.findById(order.userId.value))!
+
+    if (!user.orderHistory?.includes(order.id.value)) {
+      user.orderHistory = [order.id.value, ...(user.orderHistory || [])]
+      await user.save()
+    }
   }
   async findOne(id: OrderId): Promise<Optional<Order>> {
     const odmOrder = await OrderModel.findOne({ _id: id.value }).lean()
@@ -74,6 +83,31 @@ export class MongoOrderRepository implements OrderRepository {
       page,
       limit,
       count,
+    })
+  }
+  async findManyByUserId(
+    pagination: Pagination,
+    userId: UserId
+  ): Promise<PaginationResponse<Order>> {
+    const odmUser = await UserModel.findById(userId.value).lean()
+    const history = odmUser?.orderHistory || []
+    const historyPaginated = paginateArray(
+      history,
+      pagination.page,
+      pagination.limit
+    )
+    const orders: Order[] = []
+
+    for (const orderId of historyPaginated) {
+      const odmOrder = (await OrderModel.findById(orderId).lean())!
+      orders.push(this.odmToOrder(odmOrder))
+    }
+
+    return makePaginationResponse({
+      data: orders,
+      page: pagination.page,
+      limit: pagination.limit,
+      count: history.length,
     })
   }
 }

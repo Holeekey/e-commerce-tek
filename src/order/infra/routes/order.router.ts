@@ -20,6 +20,7 @@ import { CancelOrderService } from '../../app/services/cancel/cancel-order.servi
 import { GetOrderHistoryService } from '../../app/services/history/get-order-history.service'
 import { validateQuery } from '../../../core/infra/middlewares/validate-query.middleware'
 import { PaginationDTO } from '../../../core/infra/pagination/dto/pagination.dto'
+import { PerfomanceDecorator } from '../../../core/app/decorators/performance.decorator'
 
 export const orderRouter = Router()
 
@@ -119,10 +120,16 @@ orderRouter.get(
   async (req: any, res) => {
     const user = getUserFromReq(req)
 
+    const logger = new BunyanLogger('Get Order History')
+
     const result = await new ExceptionDecorator(
-      new LoggerDecorator(new GetOrderHistoryService(orderRepo, productRepo), [
-        new BunyanLogger('Get Order History'),
-      ]),
+      new LoggerDecorator(
+        new PerfomanceDecorator(
+          new GetOrderHistoryService(orderRepo, productRepo),
+          [logger]
+        ),
+        [logger]
+      ),
       expressExceptionHandler(res)
     ).execute({
       userId: user.id,

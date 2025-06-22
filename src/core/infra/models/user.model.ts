@@ -24,6 +24,11 @@ const userSchema = new Schema(
       required: false,
       default: [],
     },
+    orderHistory: {
+      type: [String],
+      required: false,
+      default: [],
+    },
   },
   {
     _id: true,
