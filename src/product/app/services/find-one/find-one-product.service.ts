@@ -15,7 +15,7 @@ export class FindOneProductService
   ): Promise<Result<FindOneProductResponse>> {
     const productResult = await this.productRepo.findOne(new ProductId(data.id))
 
-    if (productResult.isEmpty()) {
+    if (productResult.isEmpty() || !productResult.get().active) {
       return Result.failure(new ProductNotFoundException())
     }
 
