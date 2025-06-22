@@ -15,6 +15,12 @@ export class Result<T> {
     return Boolean(this.exception)
   }
 
+  getException() {
+    if (!this.isException())
+      throw new Error(`Can't get exception without an exception`)
+    return this.exception!
+  }
+
   handleError<R>(handler: (e: Error) => R) {
     if (!this.isException())
       throw new Error(`Can't handle without an exception`)
