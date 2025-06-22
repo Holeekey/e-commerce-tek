@@ -1,13 +1,13 @@
 import {
   Pagination,
   PaginationResponse,
-} from '../../src/core/app/pagination/pagination'
-import { Optional } from '../../src/core/utils/optional'
-import { ProductRepository } from '../../src/product/app/repositories/product.repository'
-import { Product } from '../../src/product/dom/product'
-import { ProductId } from '../../src/product/dom/value-objects/product-id'
-import { ProductName } from '../../src/product/dom/value-objects/product-name'
-import { StockQuantity } from '../../src/product/dom/value-objects/stock-quantity'
+} from '../../../src/core/app/pagination/pagination'
+import { Optional } from '../../../src/core/utils/optional'
+import { ProductRepository } from '../../../src/product/app/repositories/product.repository'
+import { Product } from '../../../src/product/dom/product'
+import { ProductId } from '../../../src/product/dom/value-objects/product-id'
+import { ProductName } from '../../../src/product/dom/value-objects/product-name'
+import { StockQuantity } from '../../../src/product/dom/value-objects/stock-quantity'
 
 export class MockProductRepository implements ProductRepository {
   product: Product[]

@@ -1,6 +1,6 @@
 import { CreateProductService } from '../../src/product/app/services/create/create-product.service'
 import { ObjectIdGenerator } from '../../src/core/infra/object-id/object-id-generator'
-import { MockProductRepository } from '../mocks/mock-product.repository'
+import { MockProductRepository } from '../mocks/repositories/mock-product.repository'
 import { mockProducts } from '../data/product-mock.data'
 
 test('Product Name Already Exists', () => {
