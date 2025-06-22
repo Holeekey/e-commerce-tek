@@ -1,12 +1,12 @@
 import { ApplicationService } from '../../../../core/app/service/application-service.interface'
-import { SignUpDTO } from './dto/data'
+import { SignUpData } from './dto/data'
 import { SignUpResponse } from './dto/response'
 import { Result } from '../../../../core/utils/result'
 import { UserRepository } from '../../repositories/user.repository'
 import { makeUser } from '../../../dom/user'
 
 export class SignUpService
-  implements ApplicationService<SignUpDTO, SignUpResponse>
+  implements ApplicationService<SignUpData, SignUpResponse>
 {
   constructor(private readonly userRepo: UserRepository) {}
 
@@ -15,7 +15,7 @@ export class SignUpService
     email,
     firstName,
     lastName,
-  }: SignUpDTO): Promise<Result<SignUpResponse>> {
+  }: SignUpData): Promise<Result<SignUpResponse>> {
     const user = makeUser({
       id,
       email,

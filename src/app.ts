@@ -14,6 +14,7 @@ import { productRouter } from './product/infra/routes/product.router'
 import { ObjectIdGenerator } from './core/infra/object-id/object-id-generator'
 import { shoppingCartRouter } from './shopping-cart/infra/routes/shopping-cart.routes'
 import { orderRouter } from './order/infra/routes/order.router'
+import { seedRouter } from './seed/infra/routes/seed.router'
 
 console.log('Connecting to database...')
 
@@ -61,6 +62,8 @@ mongoose
     app.use('/cart', shoppingCartRouter)
 
     app.use('/order', orderRouter)
+
+    app.use('/seed', seedRouter)
 
     app.get('/', (_req, res) => {
       res.send('Welcome to E-Commerce-Tek!')
