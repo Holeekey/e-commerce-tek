@@ -76,7 +76,7 @@ export class MongoProductRepository implements ProductRepository {
         description: product.description
           ? product.description.value
           : undefined,
-        price: product.price.value,
+        currentPrice: product.price.value,
         active: product.active,
         canStockBeDecimal: product.stock.isDecimal,
       },
