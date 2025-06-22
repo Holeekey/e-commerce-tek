@@ -14,6 +14,7 @@ import { getUserFromReq } from '../../../core/infra/utils/get-user-from-req'
 import { MongoOrderRepository } from '../repositories/mongo/order.repositories'
 import { ObjectIdGenerator } from '../../../core/infra/object-id/object-id-generator'
 import { ConcreteDateProvider } from '../../../core/infra/date/concrete-date.provider'
+import { FindOneOrderService } from '../../app/services/find-one/find-one-order.service'
 
 export const orderRouter = Router()
 
@@ -48,3 +49,20 @@ orderRouter.post(
     res.send(result.unwrap())
   }
 )
+
+orderRouter.get('/one/:id', verifyToken(credentialsRepo), async (req, res) => {
+  const user = getUserFromReq(req)
+
+  const result = await new ExceptionDecorator(
+    new LoggerDecorator(new FindOneOrderService(orderRepo, productRepo), [
+      new BunyanLogger('Find One Order'),
+    ]),
+    expressExceptionHandler(res)
+  ).execute({
+    id: req.params.id,
+    userId: user.id,
+    mustBeOwner: user.role === Role.CLIENT,
+  })
+
+  res.send(result.unwrap())
+})

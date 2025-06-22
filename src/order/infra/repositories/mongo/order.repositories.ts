@@ -6,10 +6,24 @@ import { OrderModel } from '../../../../core/infra/models/order.model'
 import { Optional } from '../../../../core/utils/optional'
 import { UserId } from '../../../../user/dom/value-objects/user-id'
 import { OrderRepository } from '../../../app/repositories/order.repository'
-import { Order } from '../../../dom/order'
+import { makeOrder, Order } from '../../../dom/order'
 import { OrderId } from '../../../dom/value-objects/order-id'
 
 export class MongoOrderRepository implements OrderRepository {
+  private odmToOrder(odmOrder): Order {
+    return makeOrder({
+      id: odmOrder._id.toString(),
+      userId: odmOrder.userId,
+      status: odmOrder.status,
+      items: odmOrder.items.map((item) => ({
+        productId: item.productId,
+        quantity: item.quantity,
+        unitPrice: item.unitPrice,
+      })),
+      creationDate: odmOrder.creationDate,
+    })
+  }
+
   async save(order: Order): Promise<void> {
     await OrderModel.findByIdAndUpdate(
       order.id.value,
@@ -26,8 +40,12 @@ export class MongoOrderRepository implements OrderRepository {
       { upsert: true }
     )
   }
-  findOne(id: OrderId): Promise<Optional<Order>> {
-    throw new Error('Method not implemented.')
+  async findOne(id: OrderId): Promise<Optional<Order>> {
+    const odmOrder = await OrderModel.findOne({ _id: id.value }).lean()
+    if (!odmOrder) {
+      return Optional.empty()
+    }
+    return Optional.of(this.odmToOrder(odmOrder))
   }
   findMany(
     pagination: Pagination,
