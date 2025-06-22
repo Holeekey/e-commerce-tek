@@ -16,6 +16,7 @@ import { ObjectIdGenerator } from '../../../core/infra/object-id/object-id-gener
 import { ConcreteDateProvider } from '../../../core/infra/date/concrete-date.provider'
 import { FindOneOrderService } from '../../app/services/find-one/find-one-order.service'
 import { UpdateOrderStatusService } from '../../app/services/update-status/update-order-status.service'
+import { CancelOrderService } from '../../app/services/cancel/cancel-order.service'
 
 export const orderRouter = Router()
 
@@ -63,6 +64,27 @@ orderRouter.patch(
       expressExceptionHandler(res)
     ).execute({
       id: req.params.id,
+    })
+
+    res.send(result.unwrap())
+  }
+)
+
+orderRouter.patch(
+  '/cancel/:id',
+  verifyToken(credentialsRepo),
+  async (req, res) => {
+    const user = getUserFromReq(req)
+
+    const result = await new ExceptionDecorator(
+      new LoggerDecorator(new CancelOrderService(orderRepo), [
+        new BunyanLogger('Cancel Order'),
+      ]),
+      expressExceptionHandler(res)
+    ).execute({
+      id: req.params.id,
+      userId: user.id,
+      mustBeOwner: user.role === Role.CLIENT,
     })
 
     res.send(result.unwrap())
