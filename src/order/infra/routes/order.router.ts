@@ -15,6 +15,7 @@ import { MongoOrderRepository } from '../repositories/mongo/order.repositories'
 import { ObjectIdGenerator } from '../../../core/infra/object-id/object-id-generator'
 import { ConcreteDateProvider } from '../../../core/infra/date/concrete-date.provider'
 import { FindOneOrderService } from '../../app/services/find-one/find-one-order.service'
+import { UpdateOrderStatusService } from '../../app/services/update-status/update-order-status.service'
 
 export const orderRouter = Router()
 
@@ -44,6 +45,24 @@ orderRouter.post(
       expressExceptionHandler(res)
     ).execute({
       userId: user.id,
+    })
+
+    res.send(result.unwrap())
+  }
+)
+
+orderRouter.patch(
+  '/update/:id',
+  verifyToken(credentialsRepo),
+  verifyUserRole(Role.ADMIN),
+  async (req, res) => {
+    const result = await new ExceptionDecorator(
+      new LoggerDecorator(new UpdateOrderStatusService(orderRepo), [
+        new BunyanLogger('Update Order Status'),
+      ]),
+      expressExceptionHandler(res)
+    ).execute({
+      id: req.params.id,
     })
 
     res.send(result.unwrap())
