@@ -25,7 +25,7 @@ export class Order extends AggregateRoot<OrderId> {
     private _creationDate: OrderCreationDate
   ) {
     super(id)
-    this.pushEvent(OrderCreated.createEvent(id))
+    this.pushEvent(OrderCreated.createEvent(id, _userId, _items))
   }
 
   get status(): OrderStatus {
