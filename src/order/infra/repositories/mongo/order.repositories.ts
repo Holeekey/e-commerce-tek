@@ -1,4 +1,5 @@
 import {
+  makePaginationResponse,
   Pagination,
   PaginationResponse,
 } from '../../../../core/app/pagination/pagination'
@@ -47,10 +48,32 @@ export class MongoOrderRepository implements OrderRepository {
     }
     return Optional.of(this.odmToOrder(odmOrder))
   }
-  findMany(
+  async findMany(
     pagination: Pagination,
     filters?: { userId: UserId }
   ): Promise<PaginationResponse<Order>> {
-    throw new Error('Method not implemented.')
+    const { page, limit } = pagination
+    const query: any = {}
+    if (filters?.userId) {
+      query.userId = filters.userId.value
+    }
+    const skip = (page - 1) * limit
+
+    const odmOrders = await OrderModel.find(query)
+      .sort({ creationDate: -1 })
+      .skip(skip)
+      .limit(limit)
+      .lean()
+
+    const count = await OrderModel.countDocuments(query)
+
+    const data = odmOrders.map((odmOrder) => this.odmToOrder(odmOrder))
+
+    return makePaginationResponse({
+      data,
+      page,
+      limit,
+      count,
+    })
   }
 }

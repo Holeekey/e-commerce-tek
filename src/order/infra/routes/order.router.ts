@@ -17,6 +17,9 @@ import { ConcreteDateProvider } from '../../../core/infra/date/concrete-date.pro
 import { FindOneOrderService } from '../../app/services/find-one/find-one-order.service'
 import { UpdateOrderStatusService } from '../../app/services/update-status/update-order-status.service'
 import { CancelOrderService } from '../../app/services/cancel/cancel-order.service'
+import { GetOrderHistoryService } from '../../app/services/history/get-order-history.service'
+import { validateQuery } from '../../../core/infra/middlewares/validate-query.middleware'
+import { PaginationDTO } from '../../../core/infra/pagination/dto/pagination.dto'
 
 export const orderRouter = Router()
 
@@ -107,3 +110,25 @@ orderRouter.get('/one/:id', verifyToken(credentialsRepo), async (req, res) => {
 
   res.send(result.unwrap())
 })
+
+orderRouter.get(
+  '/history',
+  verifyToken(credentialsRepo),
+  verifyUserRole(Role.CLIENT),
+  validateQuery(PaginationDTO),
+  async (req: any, res) => {
+    const user = getUserFromReq(req)
+
+    const result = await new ExceptionDecorator(
+      new LoggerDecorator(new GetOrderHistoryService(orderRepo, productRepo), [
+        new BunyanLogger('Get Order History'),
+      ]),
+      expressExceptionHandler(res)
+    ).execute({
+      userId: user.id,
+      ...req.queryParams,
+    })
+
+    res.send(result.unwrap())
+  }
+)
