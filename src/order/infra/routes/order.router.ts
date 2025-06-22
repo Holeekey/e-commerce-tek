@@ -21,6 +21,8 @@ import { GetOrderHistoryService } from '../../app/services/history/get-order-his
 import { validateQuery } from '../../../core/infra/middlewares/validate-query.middleware'
 import { PaginationDTO } from '../../../core/infra/pagination/dto/pagination.dto'
 import { PerfomanceDecorator } from '../../../core/app/decorators/performance.decorator'
+import { validateParam } from '../../../core/infra/middlewares/validate-param.middleware'
+import { isObjectId } from '../../../core/utils/functions/is-object-id'
 
 export const orderRouter = Router()
 
@@ -60,6 +62,7 @@ orderRouter.patch(
   '/update/:id',
   verifyToken(credentialsRepo),
   verifyUserRole(Role.ADMIN),
+  validateParam('id', isObjectId),
   async (req, res) => {
     const result = await new ExceptionDecorator(
       new LoggerDecorator(new UpdateOrderStatusService(orderRepo), [
@@ -77,6 +80,7 @@ orderRouter.patch(
 orderRouter.patch(
   '/cancel/:id',
   verifyToken(credentialsRepo),
+  validateParam('id', isObjectId),
   async (req, res) => {
     const user = getUserFromReq(req)
 
@@ -95,22 +99,27 @@ orderRouter.patch(
   }
 )
 
-orderRouter.get('/one/:id', verifyToken(credentialsRepo), async (req, res) => {
-  const user = getUserFromReq(req)
+orderRouter.get(
+  '/one/:id',
+  verifyToken(credentialsRepo),
+  validateParam('id', isObjectId),
+  async (req, res) => {
+    const user = getUserFromReq(req)
 
-  const result = await new ExceptionDecorator(
-    new LoggerDecorator(new FindOneOrderService(orderRepo, productRepo), [
-      new BunyanLogger('Find One Order'),
-    ]),
-    expressExceptionHandler(res)
-  ).execute({
-    id: req.params.id,
-    userId: user.id,
-    mustBeOwner: user.role === Role.CLIENT,
-  })
+    const result = await new ExceptionDecorator(
+      new LoggerDecorator(new FindOneOrderService(orderRepo, productRepo), [
+        new BunyanLogger('Find One Order'),
+      ]),
+      expressExceptionHandler(res)
+    ).execute({
+      id: req.params.id,
+      userId: user.id,
+      mustBeOwner: user.role === Role.CLIENT,
+    })
 
-  res.send(result.unwrap())
-})
+    res.send(result.unwrap())
+  }
+)
 
 orderRouter.get(
   '/history',
